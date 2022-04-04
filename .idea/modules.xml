@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Hello/Hello.iml" filepath="$PROJECT_DIR$/Hello/Hello.iml" />
+      <module fileurl="file://$PROJECT_DIR$/IDEA_JAVA.iml" filepath="$PROJECT_DIR$/IDEA_JAVA.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Qsort/Qsort.iml" filepath="$PROJECT_DIR$/Qsort/Qsort.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java8/java8.iml" filepath="$PROJECT_DIR$/java8/java8.iml" />
+      <module fileurl="file://$PROJECT_DIR$/print/print.iml" filepath="$PROJECT_DIR$/print/print.iml" />
+    </modules>
+  </component>
+</project>

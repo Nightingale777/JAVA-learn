@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataSource name="postgres@localhost">
+  <database-model serializer="dbm" dbms="POSTGRES" family-id="POSTGRES" format-version="4.32">
+    <root id="1">
+      <ServerVersion>9.2.4</ServerVersion>
+      <StartupTime>1649055213</StartupTime>
+    </root>
+    <database id="2" parent="1" name="omm">
+      <ObjectId>16384</ObjectId>
+      <OwnerName>omm</OwnerName>
+    </database>
+    <database id="3" parent="1" name="postgres">
+      <Comment>default administrative connection database</Comment>
+      <Current>1</Current>
+      <ObjectId>14435</ObjectId>
+      <OwnerName>omm</OwnerName>
+    </database>
+    <schema id="4" parent="3" name="blockchain">
+      <Comment>blockchain schema</Comment>
+      <ObjectId>4990</ObjectId>
+      <StateNumber>1</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="5" parent="3" name="cstore">
+      <Comment>reserved schema for DELTA tables</Comment>
+      <ObjectId>100</ObjectId>
+      <StateNumber>1</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="6" parent="3" name="db4ai">
+      <Comment>db4ai schema</Comment>
+      <ObjectId>4991</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="7" parent="3" name="dbe_perf">
+      <Comment>dbe_perf schema</Comment>
+      <ObjectId>4988</ObjectId>
+      <StateNumber>1</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="8" parent="3" name="dbe_pldebugger">
+      <Comment>dbe_pldebugger schema</Comment>
+      <ObjectId>4992</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="9" parent="3" name="gaussdb">
+      <Current>1</Current>
+      <ObjectId>16387</ObjectId>
+      <StateNumber>13211</StateNumber>
+      <OwnerName>gaussdb</OwnerName>
+    </schema>
+    <schema id="10" parent="3" name="information_schema">
+      <ObjectId>13498</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="11" parent="3" name="oracle">
+      <ObjectId>16391</ObjectId>
+      <StateNumber>13215</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="12" parent="3" name="pg_catalog">
+      <Comment>system catalog schema</Comment>
+      <ObjectId>11</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="13" parent="3" name="pkg_service">
+      <Comment>pkg_service schema</Comment>
+      <ObjectId>3988</ObjectId>
+      <StateNumber>1</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="14" parent="3" name="public">
+      <Comment>standard public schema</Comment>
+      <ObjectId>2200</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="15" parent="3" name="snapshot">
+      <Comment>snapshot schema</Comment>
+      <ObjectId>4989</ObjectId>
+      <StateNumber>1</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+    <schema id="16" parent="3" name="sqladvisor">
+      <Comment>sqladvisor schema</Comment>
+      <ObjectId>7813</ObjectId>
+      <StateNumber>2</StateNumber>
+      <OwnerName>omm</OwnerName>
+    </schema>
+  </database-model>
+</dataSource>
