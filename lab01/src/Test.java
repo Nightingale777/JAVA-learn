@@ -110,34 +110,6 @@ class Train {
         this.line_id = line_id;
         this.ticketMap = ticketMap;
     }
-    //    double price1;
-//    double price2;
-//    double price3;
-//    int count1;
-//    int count2;
-//    int count3;
-//
-//    public Train(String train_id, String line_id, double price1, double price2, double price3, int count1, int count2, int count3) {
-//        this.train_id = train_id;
-//        this.line_id = line_id;
-//        this.price1 = price1;
-//        this.price2 = price2;
-//        this.price3 = price3;
-//        this.count1 = count1;
-//        this.count2 = count2;
-//        this.count3 = count3;
-//    }
-
-//    public Train(String train_id, String line_id, double price1, double price2, int count1, int count2) {
-//        this.train_id = train_id;
-//        this.line_id = line_id;
-//        this.price1 = price1;
-//        this.price2 = price2;
-//        this.price3 = -9999;
-//        this.count1 = count1;
-//        this.count2 = count2;
-//        this.count3 = -9999;
-//    }
 
     @Override
     public String toString() {
