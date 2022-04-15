@@ -241,9 +241,6 @@ public class Test {
                 }
                 else {
                     List<Line> line_arr = new ArrayList<>(lineMap.values());
-//                    for (String key : lineMap.keySet()) {
-//                        line_arr.add(lineMap.get(key));
-//                    }
                     line_arr.sort(new Comparator<>() {
                         @Override
                         public int compare(Line o1, Line o2) {
@@ -357,18 +354,18 @@ public class Test {
                     System.out.println("Command does not exist");
                     continue;
                 }
-                if (arr.length != 9 || arr.length != 7) {
+                if (arr.length != 9 && arr.length != 7) {
                     System.out.println("Arguments illegal");
                 }
                 else {
                     flag = false;
-                    if (arr[0].charAt(0) == 'K') {
+                    if (arr[1].charAt(0) == 'K') {
                         if (arr.length != 7) {
                             flag = true;
                         }
 
                     }
-                    else if (arr[0].charAt(0) == 'G' || arr[0].charAt(0) == '0') {
+                    else if (arr[1].charAt(0) == 'G' || arr[1].charAt(0) == '0') {
                         if (arr.length != 9) {
                             flag = true;
                         }
@@ -384,7 +381,6 @@ public class Test {
                                 Line line_insert = lineMap.get(arr[2]);
                                 if (line_insert != null &&
                                         line_insert.cur_train < line_insert.capacity) {
-                                    flag = false;
                                     for (int i = 3; i < arr.length; i+=2) {
                                         if (!judgeDouble(arr[i])) {
                                             System.out.println("Price illegal");
@@ -483,26 +479,26 @@ public class Test {
                         else {
                             flag = false;
                             if (arr[1].charAt(0) == 'K') {
-                                if (arr[4] != "1A" && arr[4] != "2A") {
+                                if (!Objects.equals(arr[4], "1A") && !Objects.equals(arr[4], "2A")) {
                                     flag = true;
+                                    System.out.println("dingding");
                                     System.out.println("Seat does not match");
                                 }
                             }
                             else if (arr[1].charAt(0) == '0') {
-                                if (arr[4] != "CC" && arr[4] != "SB" && arr[4] != "GG") {
+                                if (!Objects.equals(arr[4], "CC") && !Objects.equals(arr[4], "SB") && !Objects.equals(arr[4], "GG")) {
                                     flag = true;
                                     System.out.println("Seat does not match");
                                 }
                             }
                             else if (arr[1].charAt(0) == 'G') {
-                                if (arr[4] != "SC" && arr[4] != "HC" && arr[4] != "SB") {
+                                if (!Objects.equals(arr[4], "SC") && !Objects.equals(arr[4], "HC") && !Objects.equals(arr[4], "SB")) {
                                     flag = true;
                                     System.out.println("Seat does not match");
                                 }
                             }
                             if (!flag) {
                                 StringBuilder str = new StringBuilder();
-                                Map<String, Train.Ticket> ticketMap = train_temp.ticketMap;
                                 int count;
                                 double price;
                                 int distance;
@@ -514,7 +510,7 @@ public class Test {
                                 str.append(' ').append("remain:").append(count);
                                 str.append(' ').append("distance:").append(distance);
                                 str.append(' ').append("price:").append(String.format("%.2f", distance * price));
-                                System.out.println(str.toString());
+                                System.out.println(str);
                             }
                         }
                     }
@@ -527,6 +523,8 @@ public class Test {
                 }
 
             }
+
+
 
             else if (arr[0].equals("addUser")) {
                 if (arr.length != 4) {
