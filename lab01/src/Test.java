@@ -94,9 +94,14 @@ class Line {
 class Train {
     String train_id;
     String line_id;
-    class Ticket {
+    static class Ticket {
         double price;
         int count;
+
+        public Ticket(double price, int count) {
+            this.price = price;
+            this.count = count;
+        }
     }
     Map<String, Ticket> ticketMap;
 
@@ -142,14 +147,14 @@ class Train {
             str.append(' ').append("[2A]").append(String.format("%.2f", ticketMap.get("1A").price)).append(':').append(ticketMap.get("1A").count);
         }
         else if (train_id.charAt(0) == '0') {
-            str.append(' ').append("[CC]").append(String.format("%.2f", ticketMap.get("CC").price)).append(':').append(count1);
-            str.append(' ').append("[SB]").append(String.format("%.2f", ticketMap.get("SB").price)).append(':').append(count2);
-            str.append(' ').append("[GG]").append(String.format("%.2f", price3)).append(':').append(count3);
+            str.append(' ').append("[CC]").append(String.format("%.2f", ticketMap.get("CC").price)).append(':').append(ticketMap.get("CC").count);
+            str.append(' ').append("[SB]").append(String.format("%.2f", ticketMap.get("SB").price)).append(':').append(ticketMap.get("SB").count);
+            str.append(' ').append("[GG]").append(String.format("%.2f", ticketMap.get("GG").price)).append(':').append(ticketMap.get("GG").count);
         }
         else if (train_id.charAt(0) == 'G') {
-            str.append(' ').append("[SC]").append(String.format("%.2f", price1)).append(':').append(count1);
-            str.append(' ').append("[HB]").append(String.format("%.2f", price2)).append(':').append(count2);
-            str.append(' ').append("[SB]").append(String.format("%.2f", price3)).append(':').append(count3);
+            str.append(' ').append("[SC]").append(String.format("%.2f", ticketMap.get("SC").price)).append(':').append(ticketMap.get("SC").count);
+            str.append(' ').append("[HC]").append(String.format("%.2f", ticketMap.get("HC").price)).append(':').append(ticketMap.get("HC").count);
+            str.append(' ').append("[SB]").append(String.format("%.2f", ticketMap.get("SB").price)).append(':').append(ticketMap.get("SB").count);
         }
         String s = str.toString();
         return train_id + ':' + ' ' + line_id + s;
@@ -422,16 +427,39 @@ public class Test {
                                     }
                                     if (!flag) {
                                         if (arr[1].charAt(0) == 'K') {
-                                            trainMap.put(arr[1], new Train(arr[1], arr[2],
-                                                    Double.parseDouble(arr[3]), Double.parseDouble(arr[5]),
-                                                    Integer.parseInt(arr[4]), Integer.parseInt(arr[6])));
+                                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                                            ticketMap.put("1A", new Train.Ticket(Double.parseDouble(arr[3]),
+                                                                                Integer.parseInt(arr[4])));
+                                            ticketMap.put("2A", new Train.Ticket(Double.parseDouble(arr[5]),
+                                                    Integer.parseInt(arr[6])));
+                                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                                            trainMap.put(arr[1], train_temp);
                                             lineMap.get(arr[2]).cur_train++;
                                             System.out.println("Add Train Success");
                                         }
-                                        else {
-                                            trainMap.put(arr[1], new Train(arr[1], arr[2],
-                                                    Double.parseDouble(arr[3]), Double.parseDouble(arr[5]), Double.parseDouble(arr[7]),
-                                                    Integer.parseInt(arr[4]), Integer.parseInt(arr[6]), Integer.parseInt(arr[8])));
+                                        else if (arr[1].charAt(0) == '0'){
+                                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                                            ticketMap.put("CC", new Train.Ticket(Double.parseDouble(arr[3]),
+                                                    Integer.parseInt(arr[4])));
+                                            ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[5]),
+                                                    Integer.parseInt(arr[6])));
+                                            ticketMap.put("GG", new Train.Ticket(Double.parseDouble(arr[7]),
+                                                    Integer.parseInt(arr[8])));
+                                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                                            trainMap.put(arr[1], train_temp);
+                                            lineMap.get(arr[2]).cur_train++;
+                                            System.out.println("Add Train Success");
+                                        }
+                                        else if (arr[1].charAt(0) == 'G'){
+                                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                                            ticketMap.put("SC", new Train.Ticket(Double.parseDouble(arr[3]),
+                                                    Integer.parseInt(arr[4])));
+                                            ticketMap.put("HC", new Train.Ticket(Double.parseDouble(arr[5]),
+                                                    Integer.parseInt(arr[6])));
+                                            ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[7]),
+                                                    Integer.parseInt(arr[8])));
+                                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                                            trainMap.put(arr[1], train_temp);
                                             lineMap.get(arr[2]).cur_train++;
                                             System.out.println("Add Train Success");
                                         }
@@ -502,48 +530,19 @@ public class Test {
                             }
                             if (!flag) {
                                 StringBuilder str = new StringBuilder();
+                                Map<String, Train.Ticket> ticketMap = train_temp.ticketMap;
                                 int count;
                                 double price;
-                                switch (arr[1].charAt(0)) {
-                                    case '0' -> {
-                                        count = switch (arr[4]) {
-                                            case "CC" -> train_temp.count1;
-                                            case "SB" -> train_temp.count2;
-                                            case "GG" -> train_temp.count3;
-                                        };
-                                        price = switch (arr[4]) {
-                                            case "CC" -> train_temp.price1;
-                                            case "SB" -> train_temp.price2;
-                                            case "GG" -> train_temp.price3;
-                                        };
-                                    }
-                                    case 'G' -> {
-                                        count = switch (arr[4]) {
-                                            case "SC" -> train_temp.count1;
-                                            case "HC" -> train_temp.count2;
-                                            case "SB" -> train_temp.count3;
-                                        };
-                                        price = switch (arr[4]) {
-                                            case "SC" -> train_temp.price1;
-                                            case "HC" -> train_temp.price2;
-                                            case "SB" -> train_temp.price3;
-                                        };
-                                    }
-                                    case 'K' -> {
-                                        count = switch (arr[4]) {
-                                            case "1A" -> train_temp.count1;
-                                            case "2A" -> train_temp.count2;
-                                        };
-                                        price = switch (arr[4]) {
-                                            case "1A" -> train_temp.price1;
-                                            case "2A" -> train_temp.price2;
-                                        };
-                                    }
-                                }
+                                int distance;
+                                count = train_temp.ticketMap.get(arr[4]).count;
+                                price = train_temp.ticketMap.get(arr[4]).price;
+                                distance = Math.abs(line_temp.stations.get(arr[2]).distance - line_temp.stations.get(arr[3]).distance);
                                 str.append('[').append(train_temp.train_id).append(": ").append(arr[2]).append("->").append(arr[3]).append(']');
                                 str.append(' ').append("seat:").append(arr[4]);
-                                str.append(' ').append("remain:").append(train_temp.count1);
-                                System.out.println();
+                                str.append(' ').append("remain:").append(count);
+                                str.append(' ').append("distance:").append(distance);
+                                str.append(' ').append("price:").append(String.format("%.2f", distance * price));
+                                System.out.println(str.toString());
                             }
                         }
                     }
