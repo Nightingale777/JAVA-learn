@@ -1,3 +1,4 @@
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.lang.*;
 
@@ -31,12 +32,24 @@ class User {
         Aadhaar = aadhaar;
     }
 
+    public User(String name, String sex, String aadhaar) {
+        Name = name;
+        Sex = sex;
+        Aadhaar = aadhaar;
+    }
+
     @Override
     public String toString() {
         return "Name:" + Name + '\n' +
                 "Sex:" + Sex + '\n' +
                 "Aadhaar:" + Aadhaar + '\n';
     }
+}
+
+class Line {
+    String line_id;
+    int capacity;
+
 }
 
 public class Test {
@@ -68,17 +81,44 @@ public class Test {
 
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
+        boolean is_root = false;
         boolean arg_ill, name_ill, sex_ill, num_ill, num_exit;
-        User users[] = new User[20];
+        LinkedList<User> users = new LinkedList<>();
+        //User users[] = new User[2000];
         while (true) {
             name_ill = false;
             num_exit = false;
             String argStr = input.nextLine();
-            String[] arr = argStr.split("\\s+");
+
             if (argStr.equals("QUIT")) {
                 System.out.println("----- Good Bye! -----");
                 break;
             }
+            if (argStr.equals("TunakTunakTun")) {
+                if (is_root) {
+                    System.out.println("WanNiBa");
+                    continue;
+                }
+                is_root = true;
+                System.out.println("DuluDulu");
+                continue;
+            }
+            if (argStr.equals("NutKanutKanut")) {
+                if (!is_root) {
+                    System.out.println("WanNiBa");
+                    continue;
+                }
+                is_root = false;
+                System.out.println("DaDaDa");
+                continue;
+            }
+
+            String[] arr = argStr.split("\\s+");
+
+            if (arr[0].equals("allLine")) {
+
+            }
+
             if (arr[0].equals("addUser")) {
                 if (arr.length != 4) {
                     System.out.println("Arguments illegal");
@@ -106,8 +146,8 @@ public class Test {
                     continue;
                 }
 
-                for (int i = 0; i < User.UserNum; i++) {
-                    if (arr[3].equals(users[i].getAadhaar())) {
+                for (User usr : users) {
+                    if (arr[3].equals(usr.getAadhaar())) {
                         num_exit = true;
                         break;
                     }
@@ -117,11 +157,10 @@ public class Test {
                     continue;
                 }
 
-                User usr1 = new User();
-                users[User.UserNum++] = usr1;
-                usr1.setName(arr[1]);
-                usr1.setSex(arr[2]);
-                usr1.setAadhaar(arr[3]);
+                User usr1 = new User(arr[1], arr[2], arr[3]);
+                users.add(usr1);
+                //users[User.UserNum++] = usr1;
+
                 System.out.println(usr1);
                 //System.out.println(User.UserNum);
             }
