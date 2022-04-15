@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.lang.*;
 
 class User {
@@ -78,9 +75,18 @@ class Line {
 
     @Override
     public String toString() {
-        return line_id + ' ' + cur_train + '/' + capacity + ' ' +
-                stations;
+        StringBuilder sta_print = new StringBuilder();
+        for (Station sta: stations) {
+            sta_print.append(' ').append(sta.name).append(':').append(sta.distance);
+        }
+        String s = sta_print.toString();
+        return line_id + ' ' + cur_train + '/' + capacity  + s;
     }
+}
+
+class Train {
+    String train_id;
+    String line_id;
 }
 
 public class Test {
@@ -121,7 +127,7 @@ public class Test {
         boolean flag;
 
         LinkedList<User> users = new LinkedList<>();
-        Map<String, Line> lineMap = new HashMap<String, Line>();
+        Map<String, Line> lineMap = new HashMap<>();
         //User users[] = new User[2000];
         while (true) {
             name_ill = false;
@@ -157,7 +163,30 @@ public class Test {
                 System.out.println(lineMap.get(arr[1]));
             }
 
+            else if (arr[0].equals("listLine")) {
+                if (lineMap.isEmpty()) {
+                    System.out.println("No Lines");
+                }
+                else {
+                    ArrayList<Line> line_arr = new ArrayList<>(lineMap.values());
+//                    for (String key : lineMap.keySet()) {
+//                        line_arr.add(lineMap.get(key));
+//                    }
+                    line_arr.sort(new Comparator<>() {
+                        @Override
+                        public int compare(Line o1, Line o2) {
+                            return o1.line_id.compareTo(o2.line_id);
+                        }
+                    });
+                    line_arr.forEach(System.out::println);
+                }
+            }
+
             else if (arr[0].equals("addLine")) {
+                if (!is_root) {
+                    System.out.println("Command does not exist");
+                    continue;
+                }
                 if (arr.length % 2 == 0) {
                     System.out.println("Arguments illegal");
                     continue;
@@ -175,7 +204,7 @@ public class Test {
                 }
                 if (flag) continue;
 
-                Map<String, Boolean> station_duplicate = new HashMap<String, Boolean>();
+                Map<String, Boolean> station_duplicate = new HashMap<>();
                 for (int i = 3; i < arr.length; i+=2) {
                     if (station_duplicate.get(arr[i]) != null) {
                         System.out.println("Station duplicate");
@@ -208,6 +237,102 @@ public class Test {
                 }
                 lineMap.remove(arr[1]);
                 System.out.println("Del Line success");
+            }
+
+            else if (arr[0].equals("addStation")) {
+                if (!is_root) {
+                    System.out.println("Command does not exist");
+                    continue;
+                }
+                if (lineMap.get(arr[1]) == null) {
+                    System.out.println("Line does not exist");
+                }
+                else {
+                    Line line_temp = lineMap.get(arr[1]);
+                    flag = false;
+                    for (Station sta : line_temp.stations) {
+                        if (arr[2].equals(sta.name)) {
+                            System.out.println("Station duplicate");
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        for (int j = 0; j < arr[3].length(); j++) {
+                            if (arr[3].charAt(j) < '0' || arr[3].charAt(j) > '9') {
+                                System.out.println("Arguments illegal");
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag) {
+                            line_temp.stations.add(new Station(arr[2], Integer.parseInt(arr[3])));
+                            System.out.println("Add Station success");
+                        }
+                    }
+                }
+            }
+
+            else if (arr[0].equals("delStation")) {
+                if (!is_root) {
+                    System.out.println("Command does not exist");
+                    continue;
+                }
+                if (lineMap.get(arr[1]) == null) {
+                    System.out.println("Line does not exist");
+                }
+                else {
+                    Line line_temp = lineMap.get(arr[1]);
+                    flag = false;
+                    for (Station sta : line_temp.stations) {
+                        if (arr[2].equals(sta.name)) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        for (Station sta: line_temp.stations) {
+                            if (sta.name.equals(arr[2])) {
+                                line_temp.stations.remove(sta);
+                                System.out.println("Delete Station success");
+                                break;
+                            }
+                        }
+                    }
+                    else {
+                        System.out.println("Station does not exist");
+                    }
+                }
+            }
+
+            else if (arr[0].equals("addTrain")) {
+                if (arr.length != 9 || arr.length != 7) {
+                    System.out.println("Arguments illegal");
+                }
+                else {
+                    if (arr[0].charAt(0) == 'G') {
+                        if (arr.length != 7) {
+                            System.out.println("Arguments illegal");
+                        }
+                        else {
+
+                        }
+                    }
+                    else if (arr[0].charAt(0) == 'K') {
+                        if (arr.length != 9) {
+                            System.out.println("Arguments illegal");
+                        }
+                    }
+                    else if (arr[0].charAt(0) == '0') {
+                        if (arr.length != 9) {
+                            System.out.println("Arguments illegal");
+                        }
+                    }
+                    else {
+                        System.out.println("Arguments illegal");
+                    }
+
+                }
             }
 
             else if (arr[0].equals("addUser")) {
