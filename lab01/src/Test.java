@@ -77,12 +77,7 @@ class Line {
     public String toString() {
         StringBuilder sta_print = new StringBuilder();
         List<Station> station_list = new ArrayList<>(stations.values());
-        station_list.sort(new Comparator<>() {
-            @Override
-            public int compare(Station o1, Station o2) {
-                return o1.distance - o2.distance;
-            }
-        });
+        station_list.sort(Comparator.comparingInt(o -> o.distance));
         for (Station sta : station_list) sta_print.append(' ').append(sta.name).append(':').append(sta.distance);
         String s = sta_print.toString();
         return line_id + ' ' + cur_train + '/' + capacity  + s;
@@ -114,7 +109,7 @@ class Train {
         StringBuilder str = new StringBuilder();
         if (train_id.charAt(0) == 'K') {
             str.append(' ').append("[1A]").append(String.format("%.2f", ticketMap.get("1A").price)).append(':').append(ticketMap.get("1A").count);
-            str.append(' ').append("[2A]").append(String.format("%.2f", ticketMap.get("1A").price)).append(':').append(ticketMap.get("1A").count);
+            str.append(' ').append("[2A]").append(String.format("%.2f", ticketMap.get("2A").price)).append(':').append(ticketMap.get("2A").count);
         }
         else if (train_id.charAt(0) == '0') {
             str.append(' ').append("[CC]").append(String.format("%.2f", ticketMap.get("CC").price)).append(':').append(ticketMap.get("CC").count);
@@ -133,7 +128,8 @@ class Train {
 
 public class Test {
     public static boolean judgeInt(String num){
-        for (int i = 0; i < num.length(); i++) if (num.charAt(i) < '0' || num.charAt(i) > '9') return false;
+        for (int i = 0; i < num.length(); i++)
+            if (num.charAt(i) < '0' || num.charAt(i) > '9') return false;
         return true;
     }
 
@@ -146,6 +142,8 @@ public class Test {
 
     public static boolean judgeTrainId(String train_id) {
         if (train_id.length() != 5) return false;
+        char head = train_id.charAt(0);
+        if (head != 'G' && head != 'K' && head != '0') return false;
         for (int i = 1; i < 5; i++)
             if (train_id.charAt(i) < '0' || train_id.charAt(i) > '9')
                 return false;
@@ -177,6 +175,13 @@ public class Test {
         });
     }
 
+    public static void PrintListTrain(ArrayList<Train> trainArrayList) {
+        TrainSort(trainArrayList);
+        for (int i = 0; i < trainArrayList.size(); i++) {
+            System.out.println("[" + (i + 1) + ']' + ' ' + trainArrayList.get(i));
+        }
+    }
+
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         boolean is_root = false;
@@ -202,6 +207,10 @@ public class Test {
                     System.out.println("WanNiBa");
                     continue;
                 }
+                if (arr.length != 1) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 is_root = true;
                 System.out.println("DuluDulu");
             }
@@ -210,29 +219,39 @@ public class Test {
                     System.out.println("WanNiBa");
                     continue;
                 }
+                if (arr.length != 1) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 is_root = false;
                 System.out.println("DaDaDa");
             }
-
             else if (arr[0].equals("lineInfo")) {
-                if (lineMap.get(arr[1]) == null) System.out.println("Line does not exist");
+                if (arr.length != 2) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (lineMap.get(arr[1]) == null) {
+                    System.out.println("Line does not exist");
+                    continue;
+                }
                 System.out.println(lineMap.get(arr[1]));
             }
-
             else if (arr[0].equals("listLine")) {
+                if (arr.length != 1) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 if (lineMap.isEmpty()) System.out.println("No Lines");
                 else {
                     List<Line> line_arr = new ArrayList<>(lineMap.values());
-                    line_arr.sort(new Comparator<>() {
-                        @Override
-                        public int compare(Line o1, Line o2) {
-                            return o1.line_id.compareTo(o2.line_id);
-                        }
-                    });
-                    line_arr.forEach(System.out::println);
+                    line_arr.sort((o1, o2) -> o1.line_id.compareTo(o2.line_id));
+                    for (int i = 0; i < line_arr.size(); i++) {
+                        System.out.println("[" + (i + 1) + ']' + ' ' + line_arr.get(i));
+                    }
+                    //line_arr.forEach(System.out::println);
                 }
             }
-
             else if (arr[0].equals("addLine")) {
                 if (!is_root) {
                     System.out.println("Command does not exist");
@@ -242,8 +261,12 @@ public class Test {
                     System.out.println("Arguments illegal");
                     continue;
                 }
+                if (arr.length < 5) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 flag = false;
-                for (int i = 4; i < arr.length; i+=2)
+                for (int i = 4; i < arr.length; i += 2)
                     if (!judgeInt(arr[i])) {
                         flag = true;
                         break;
@@ -254,13 +277,13 @@ public class Test {
                 }
 
                 Map<String, Station> stationMap = new HashMap<>();
-                for (int i = 3; i < arr.length; i+=2) {
+                for (int i = 3; i < arr.length; i += 2) {
                     if (stationMap.get(arr[i]) != null) {
                         System.out.println("Station duplicate");
                         flag = true;
                         break;
                     }
-                    stationMap.put(arr[i], new Station(arr[i], Integer.parseInt(arr[i+1])));
+                    stationMap.put(arr[i], new Station(arr[i], Integer.parseInt(arr[i + 1])));
                 }
                 if (flag) continue;
                 if (lineMap.get(arr[1]) != null) {
@@ -275,16 +298,26 @@ public class Test {
                 lineMap.put(arr[1], new Line(arr[1], capacity, 0, stationMap));
                 System.out.println("Add Line success");
             }
-
             else if (arr[0].equals("delLine")) {
-                if (lineMap.get(arr[1]) == null) System.out.println("Line does not exist");
+                if (arr.length != 2) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (lineMap.get(arr[1]) == null)
+                {
+                    System.out.println("Line does not exist");
+                    continue;
+                }
                 lineMap.remove(arr[1]);
                 System.out.println("Del Line success");
             }
-
             else if (arr[0].equals("addStation")) {
                 if (!is_root) {
                     System.out.println("Command does not exist");
+                    continue;
+                }
+                if (arr.length != 4) {
+                    System.out.println("Arguments illegal");
                     continue;
                 }
                 if (lineMap.get(arr[1]) == null) System.out.println("Line does not exist");
@@ -297,10 +330,13 @@ public class Test {
                     } else System.out.println("Arguments illegal");
                 }
             }
-
             else if (arr[0].equals("delStation")) {
                 if (!is_root) {
                     System.out.println("Command does not exist");
+                    continue;
+                }
+                if (arr.length != 3) {
+                    System.out.println("Arguments illegal");
                     continue;
                 }
                 if (lineMap.get(arr[1]) == null) System.out.println("Line does not exist");
@@ -308,126 +344,140 @@ public class Test {
                     Line line_temp = lineMap.get(arr[1]);
                     if (line_temp.stations.get(arr[2]) == null) System.out.println("Station does not exist");
                     else {
-                        line_temp.stations.remove(arr[3]);
+                        line_temp.stations.remove(arr[2]);
                         System.out.println("Delete Station success");
                     }
                 }
             }
-
             else if (arr[0].equals("addTrain")) {
                 // 仅管理员模式
                 if (!is_root) {
                     System.out.println("Command does not exist");
                     continue;
                 }
-                if (arr.length != 9 && arr.length != 7) System.out.println("Arguments illegal");
-                else {
-                    flag = false;
-                    if (arr[1].charAt(0) == 'K') {
-                        if (arr.length != 7) flag = true;
-
-                    }
-                    else if (arr[1].charAt(0) == 'G' || arr[1].charAt(0) == '0')
-                        if (arr.length != 9) flag = true;
-                    //该处没判断车次代码不合法的情况
-
-                    if (flag) System.out.println("Arguments illegal");
-                    else if (judgeTrainId(arr[1])) {
-                        if (trainMap.get(arr[1]) == null) {
-                            Line line_insert = lineMap.get(arr[2]);
-                            if (line_insert != null &&
-                                    line_insert.cur_train < line_insert.capacity) {
-                                for (int i = 3; i < arr.length; i += 2) {
-                                    if (!judgeDouble(arr[i])) {
-                                        System.out.println("Price illegal");
-                                        flag = true;
-                                        break;
-                                    }
-                                    if (!judgeInt(arr[i + 1])) {
-                                        System.out.println("Ticket num illegal");
-                                        flag = true;
-                                        break;
-                                    }
-                                }
-                                if (!flag) if (arr[1].charAt(0) == 'K') {
-                                    Map<String, Train.Ticket> ticketMap = new HashMap<>();
-                                    ticketMap.put("1A", new Train.Ticket(Double.parseDouble(arr[3]),
-                                            Integer.parseInt(arr[4])));
-                                    ticketMap.put("2A", new Train.Ticket(Double.parseDouble(arr[5]),
-                                            Integer.parseInt(arr[6])));
-                                    Train train_temp = new Train(arr[1], arr[2], ticketMap);
-                                    trainMap.put(arr[1], train_temp);
-                                    lineMap.get(arr[2]).cur_train++;
-                                    System.out.println("Add Train Success");
-                                } else if (arr[1].charAt(0) == '0') {
-                                    Map<String, Train.Ticket> ticketMap = new HashMap<>();
-                                    ticketMap.put("CC", new Train.Ticket(Double.parseDouble(arr[3]),
-                                            Integer.parseInt(arr[4])));
-                                    ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[5]),
-                                            Integer.parseInt(arr[6])));
-                                    ticketMap.put("GG", new Train.Ticket(Double.parseDouble(arr[7]),
-                                            Integer.parseInt(arr[8])));
-                                    Train train_temp = new Train(arr[1], arr[2], ticketMap);
-                                    trainMap.put(arr[1], train_temp);
-                                    lineMap.get(arr[2]).cur_train++;
-                                    System.out.println("Add Train Success");
-                                } else if (arr[1].charAt(0) == 'G') {
-                                    Map<String, Train.Ticket> ticketMap = new HashMap<>();
-                                    ticketMap.put("SC", new Train.Ticket(Double.parseDouble(arr[3]),
-                                            Integer.parseInt(arr[4])));
-                                    ticketMap.put("HC", new Train.Ticket(Double.parseDouble(arr[5]),
-                                            Integer.parseInt(arr[6])));
-                                    ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[7]),
-                                            Integer.parseInt(arr[8])));
-                                    Train train_temp = new Train(arr[1], arr[2], ticketMap);
-                                    trainMap.put(arr[1], train_temp);
-                                    lineMap.get(arr[2]).cur_train++;
-                                    System.out.println("Add Train Success");
-                                }
-                            } else System.out.println("Line illegal");
-                        } else if (trainMap.get(arr[1]) != null) System.out.println("Train serial duplicate");
-                    } else System.out.println("Train serial illegal");
+                if (arr.length != 9 && arr.length != 7) {
+                    System.out.println("Arguments illegal");
+                    continue;
                 }
-            }
+                flag = false;
+                if (arr[1].charAt(0) == 'K') {
+                    if (arr.length != 7) flag = true;
+                }
+                else if (arr[1].charAt(0) == 'G' || arr[1].charAt(0) == '0')
+                    if (arr.length != 9) flag = true;
+                //该处没判断车次代码不合法的情况
 
+                if (flag) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (judgeTrainId(arr[1])) {
+                    if (trainMap.get(arr[1]) != null) {
+                        System.out.println("Train serial duplicate");
+                        continue;
+                    }
+                    Line line_insert = lineMap.get(arr[2]);
+                    if (line_insert != null &&
+                            line_insert.cur_train < line_insert.capacity) {
+                        for (int i = 3; i < arr.length; i += 2) {
+                            if (!judgeDouble(arr[i])) {
+                                System.out.println("Price illegal");
+                                flag = true;
+                                break;
+                            }
+                            if (!judgeInt(arr[i + 1])) {
+                                System.out.println("Ticket num illegal");
+                                flag = true;
+                                break;
+                            }
+                        }
+                        if (!flag) if (arr[1].charAt(0) == 'K') {
+                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                            ticketMap.put("1A", new Train.Ticket(Double.parseDouble(arr[3]),
+                                    Integer.parseInt(arr[4])));
+                            ticketMap.put("2A", new Train.Ticket(Double.parseDouble(arr[5]),
+                                    Integer.parseInt(arr[6])));
+                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                            trainMap.put(arr[1], train_temp);
+                            line_insert.cur_train++;
+                            System.out.println("Add Train Success");
+                        } else if (arr[1].charAt(0) == '0') {
+                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                            ticketMap.put("CC", new Train.Ticket(Double.parseDouble(arr[3]),
+                                    Integer.parseInt(arr[4])));
+                            ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[5]),
+                                    Integer.parseInt(arr[6])));
+                            ticketMap.put("GG", new Train.Ticket(Double.parseDouble(arr[7]),
+                                    Integer.parseInt(arr[8])));
+                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                            trainMap.put(arr[1], train_temp);
+                            line_insert.cur_train++;
+                            System.out.println("Add Train Success");
+                        } else if (arr[1].charAt(0) == 'G') {
+                            Map<String, Train.Ticket> ticketMap = new HashMap<>();
+                            ticketMap.put("SC", new Train.Ticket(Double.parseDouble(arr[3]),
+                                    Integer.parseInt(arr[4])));
+                            ticketMap.put("HC", new Train.Ticket(Double.parseDouble(arr[5]),
+                                    Integer.parseInt(arr[6])));
+                            ticketMap.put("SB", new Train.Ticket(Double.parseDouble(arr[7]),
+                                    Integer.parseInt(arr[8])));
+                            Train train_temp = new Train(arr[1], arr[2], ticketMap);
+                            trainMap.put(arr[1], train_temp);
+                            line_insert.cur_train++;
+                            System.out.println("Add Train Success");
+                        }
+                    }
+                    else System.out.println("Line illegal");
+                }
+                else System.out.println("Train serial illegal");
+            }
             else if (arr[0].equals("delTrain")) {
                 // 仅管理员模式
                 if (!is_root) {
                     System.out.println("Command does not exist");
                     continue;
                 }
-                if (trainMap.get(arr[1]) != null) {
-                    trainMap.remove(arr[1]);
-                    System.out.println("Del Train Success");
+                if (arr.length != 2) {
+                    System.out.println("Arguments illegal");
+                    continue;
                 }
-                else System.out.println("DTrain does not exist");
+                Train train_del = trainMap.get(arr[1]);
+                if (train_del != null) {
+                    trainMap.remove(arr[1]);
+                    lineMap.get(train_del.line_id).cur_train--;
+                    System.out.println("Del Train Success");
+                } else System.out.println("Train does not exist");
             }
-
             else if (arr[0].equals("checkTicket")) {
                 // 仅标准模式
-                if (is_root) System.out.println("Command does not exist");
+                if (is_root)
+                {
+                    System.out.println("Command does not exist");
+                    continue;
+                }
+                if (arr.length != 5) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 if (judgeTrainId(arr[1])) {
                     Train train_temp = trainMap.get(arr[1]);
                     if (train_temp != null) {
                         Line line_temp = lineMap.get(train_temp.line_id);
                         if (line_temp.stations.get(arr[2]) == null ||
-                            line_temp.stations.get(arr[3]) == null) System.out.println("Station does not exist");
+                                line_temp.stations.get(arr[3]) == null) System.out.println("Station does not exist");
                         else {
                             flag = false;
                             if (arr[1].charAt(0) == 'K') {
                                 if (!Objects.equals(arr[4], "1A") && !Objects.equals(arr[4], "2A")) {
                                     flag = true;
-                                    System.out.println("dingding");
                                     System.out.println("Seat does not match");
                                 }
-                            }
-                            else if (arr[1].charAt(0) == '0') {
+                            } else if (arr[1].charAt(0) == '0') {
                                 if (!Objects.equals(arr[4], "CC") && !Objects.equals(arr[4], "SB") && !Objects.equals(arr[4], "GG")) {
                                     flag = true;
                                     System.out.println("Seat does not match");
                                 }
-                            }
-                            else if (arr[1].charAt(0) == 'G')
+                            } else if (arr[1].charAt(0) == 'G')
                                 if (!Objects.equals(arr[4], "SC") && !Objects.equals(arr[4], "HC") && !Objects.equals(arr[4], "SB")) {
                                     flag = true;
                                     System.out.println("Seat does not match");
@@ -448,46 +498,41 @@ public class Test {
                                 System.out.println(str);
                             }
                         }
-                    }
-                    else System.out.println("Train serial does not exist");
-                }
-                else System.out.println("Train serial illegal");
+                    } else System.out.println("Train serial does not exist");
+                } else System.out.println("Train serial illegal");
 
             }
-
             else if (arr[0].equals("listTrain")) {
                 if (trainMap.isEmpty()) {
                     System.out.println("No Trains");
                     continue;
                 }
+                if (arr.length != 1 && arr.length != 2) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
                 if (arr.length == 1) {
                     ArrayList<Train> trainArrayList = new ArrayList<>(trainMap.values());
-                    TrainSort(trainArrayList);
-                    trainArrayList.forEach(System.out::println);
-                }
-                else {
+                    PrintListTrain(trainArrayList);
+                } else {
                     Line line_temp = lineMap.get(arr[1]);
                     if (line_temp == null) {
                         System.out.println("Line does not exist");
-                    }
-                    else {
+                    } else {
                         ArrayList<Train> trainArrayList = new ArrayList<>();
-                        for (Map.Entry<String, Train> trainEntry : trainMap.entrySet()){
+                        for (Map.Entry<String, Train> trainEntry : trainMap.entrySet()) {
                             if (trainEntry.getValue().line_id.equals(line_temp.line_id)) {
                                 trainArrayList.add(trainEntry.getValue());
                             }
                         }
                         if (trainArrayList.isEmpty()) {
                             System.out.println("No Trains");
-                        }
-                        else {
-                            TrainSort(trainArrayList);
-                            trainArrayList.forEach(System.out::println);
+                        } else {
+                            PrintListTrain(trainArrayList);
                         }
                     }
                 }
             }
-
             else if (arr[0].equals("addUser")) {
                 if (arr.length != 4) {
                     System.out.println("Arguments illegal");
