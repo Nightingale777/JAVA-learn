@@ -107,6 +107,12 @@ class Train {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
+        for (Map.Entry<String, Train.Ticket> entry : ticketMap.entrySet()) {
+            str.append(' ').append('[').append(entry.getKey()).append(']');
+            str.append(String.format("%.2f", entry.getValue().price));
+            str.append(entry.getValue().count);
+        }
+
         if (train_id.charAt(0) == 'K') {
             str.append(' ').append("[1A]").append(String.format("%.2f", ticketMap.get("1A").price)).append(':').append(ticketMap.get("1A").count);
             str.append(' ').append("[2A]").append(String.format("%.2f", ticketMap.get("2A").price)).append(':').append(ticketMap.get("2A").count);
@@ -164,6 +170,19 @@ public class Test {
         if ((sex == 'F' && num4 != 0) || (sex == 'M' && num4 != 1) || (sex == 'O' && num4 != 2)) return false;
         return true;
     }
+    public static boolean isLegal(String num) {
+        if (num.length() != 12) return false;
+        if (!judgeInt(num)) return false;
+        int num1 = Integer.parseInt(num.substring(0, 4));
+        int num2 = Integer.parseInt(num.substring(4, 8));
+        int num3 = Integer.parseInt(num.substring(8, 11));
+        int num4 = Integer.parseInt(num.substring(11));
+        if (num1 < 1 || num1 > 1237) return false;
+        if (num2 < 20 || num2 > 460) return false;
+        if (num3 < 0 || num3 > 100) return false;
+        if (num4 != 0 && num4 != 1 && num4 != 2) return false;
+        return true;
+    }
 
     private static void TrainSort(ArrayList<Train> trainArrayList) {
         trainArrayList.sort((o1, o2) -> {
@@ -185,16 +204,15 @@ public class Test {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         boolean is_root = false;
-        boolean arg_ill, name_ill, sex_ill, num_ill, num_exit;
+        boolean is_login = false;
         boolean flag;
 
-        LinkedList<User> users = new LinkedList<>();
+        //LinkedList<User> users = new LinkedList<>();
+        Map<String, User> userMap = new HashMap<>();
         Map<String, Line> lineMap = new HashMap<>();
         Map<String, Train> trainMap = new HashMap<>();
         //User users[] = new User[2000];
         while (true) {
-            name_ill = false;
-            num_exit = false;
             String argStr = input.nextLine();
             String[] arr = argStr.split("\\s+");
 
@@ -538,15 +556,15 @@ public class Test {
                     System.out.println("Arguments illegal");
                     continue;
                 }
-
+                flag = false;
                 for (int i = 0; i < arr[1].length(); i++) {
                     char a = arr[1].charAt(i);
                     if (!(Character.isAlphabetic(a) || a == '_')) {
-                        name_ill = true;
+                        flag = true;
                         break;
                     }
                 }
-                if (name_ill) {
+                if (flag) {
                     System.out.println("Name illegal");
                     continue;
                 }
@@ -560,23 +578,67 @@ public class Test {
                     continue;
                 }
 
-                for (User usr : users)
-                    if (arr[3].equals(usr.getAadhaar())) {
-                        num_exit = true;
-                        break;
-                    }
-                if (num_exit) {
+                if (userMap.get(arr[3]) != null) {
                     System.out.println("Aadhaar number exist");
                     continue;
                 }
-
-                User usr1 = new User(arr[1], arr[2], arr[3]);
-                users.add(usr1);
-                //users[User.UserNum++] = usr1;
-
-                System.out.println(usr1);
-                //System.out.println(User.UserNum);
+                User user_temp = new User(arr[1], arr[2], arr[3]);
+                userMap.put(arr[3], user_temp);
+                System.out.println(user_temp);
             }
+            else if (arr[0].equals("login")) {
+                if (arr.length != 3) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (is_login) {
+                    System.out.println("You have logged in");
+                    continue;
+                }
+                if (!isLegal(arr[1]) || userMap.get(arr[1]) == null) {
+                    System.out.println("User does not exist");
+                    continue;
+                }
+                if (!userMap.get(arr[1]).equals(arr[2])) {
+                    System.out.println("Wrong name");
+                    continue;
+                }
+                is_login = true;
+                System.out.println("Login success");
+            }
+            else if (arr[0].equals("logout")) {
+                if (arr.length != 1) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (!is_login) {
+                    System.out.println("No user has logged in");
+                    continue;
+                }
+                is_login = false;
+                System.out.println("Logout success");
+            }
+            else if (arr[0].equals("buyTicket")) {
+                if (arr.length != 6) {
+                    System.out.println("Arguments illegal");
+                    continue;
+                }
+                if (!is_login) {
+                    System.out.println("Please login first");
+                    continue;
+                }
+                if (trainMap.get(arr[1]) == null) {
+                    System.out.println("Train does not exist");
+                    continue;
+                }
+                Line line = lineMap.get(trainMap.get(arr[1]).line_id);
+                if (line.stations.get(arr[2]) == null ||
+                    line.stations.get(arr[3]) == null) {
+                    System.out.println("Station does not exist");
+                    continue;
+                }
+            }
+
             else System.out.println("Command does not exist");
         }
     }
