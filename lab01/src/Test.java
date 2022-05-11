@@ -3,9 +3,9 @@ import java.lang.*;
 
 class User {
     public static int UserNum = 0;
-    private String Name;
-    private String Sex;
-    private String Aadhaar;
+    protected String Name;
+    protected String Sex;
+    protected String Aadhaar;
 
     public String getName() {
         return Name;
@@ -41,7 +41,53 @@ class User {
     public String toString() {
         return "Name:" + Name + '\n' +
                 "Sex:" + Sex + '\n' +
-                "Aadhaar:" + Aadhaar + '\n';
+                "Aadhaar:" + Aadhaar;
+    }
+
+    LinkedList<Order> orders = new LinkedList<>();
+}
+
+class Student extends User {
+    int Discount;
+
+    public Student(String name, String sex, String aadhaar, int discount) {
+        super(name, sex, aadhaar);
+        Discount = discount;
+    }
+
+    @Override
+    public String toString() {
+        return "Name:" + Name + '\n' +
+                "Sex:" + Sex + '\n' +
+                "Aadhaar:" + Aadhaar + '\n' +
+                "Discount:" + Discount;
+    }
+}
+
+class Order {
+    String train_id;
+    String from;
+    String to;
+    String t_type;
+    int count;
+    double total_price;
+
+    public Order(String train_id, String from, String to, String t_type, int count, double total_price) {
+        this.train_id = train_id;
+        this.from = from;
+        this.to = to;
+        this.t_type = t_type;
+        this.count = count;
+        this.total_price = total_price;
+    }
+
+    @Override
+    public String toString() {
+        return '[' + train_id + ": " + from + "->" + to + ']' +
+                " seat:" + t_type +
+                " num:" + count +
+                " price:" + String.format("%.2f", total_price)
+                ;
     }
 }
 
@@ -107,12 +153,13 @@ class Train {
     @Override
     public String toString() {
         StringBuilder str = new StringBuilder();
-        for (Map.Entry<String, Train.Ticket> entry : ticketMap.entrySet()) {
+        str.append(train_id).append(':').append(' ').append(line_id);
+        /*for (Map.Entry<String, Train.Ticket> entry : ticketMap.entrySet()) {
             str.append(' ').append('[').append(entry.getKey()).append(']');
             str.append(String.format("%.2f", entry.getValue().price));
-            str.append(entry.getValue().count);
+            str.append(':').append(entry.getValue().count);
         }
-
+        return str.toString();*/
         if (train_id.charAt(0) == 'K') {
             str.append(' ').append("[1A]").append(String.format("%.2f", ticketMap.get("1A").price)).append(':').append(ticketMap.get("1A").count);
             str.append(' ').append("[2A]").append(String.format("%.2f", ticketMap.get("2A").price)).append(':').append(ticketMap.get("2A").count);
@@ -127,8 +174,7 @@ class Train {
             str.append(' ').append("[HC]").append(String.format("%.2f", ticketMap.get("HC").price)).append(':').append(ticketMap.get("HC").count);
             str.append(' ').append("[SB]").append(String.format("%.2f", ticketMap.get("SB").price)).append(':').append(ticketMap.get("SB").count);
         }
-        String s = str.toString();
-        return train_id + ':' + ' ' + line_id + s;
+        return str.toString();
     }
 }
 
@@ -201,6 +247,8 @@ public class Test {
         }
     }
 
+    public static String cur_user_num = null; //当前登录用户的卡号
+
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
         boolean is_root = false;
@@ -263,7 +311,7 @@ public class Test {
                 if (lineMap.isEmpty()) System.out.println("No Lines");
                 else {
                     List<Line> line_arr = new ArrayList<>(lineMap.values());
-                    line_arr.sort((o1, o2) -> o1.line_id.compareTo(o2.line_id));
+                    line_arr.sort(Comparator.comparing(o -> o.line_id));
                     for (int i = 0; i < line_arr.size(); i++) {
                         System.out.println("[" + (i + 1) + ']' + ' ' + line_arr.get(i));
                     }
@@ -599,11 +647,12 @@ public class Test {
                     System.out.println("User does not exist");
                     continue;
                 }
-                if (!userMap.get(arr[1]).equals(arr[2])) {
+                if (!userMap.get(arr[1]).getName().equals(arr[2])) {
                     System.out.println("Wrong name");
                     continue;
                 }
                 is_login = true;
+                cur_user_num = arr[1];
                 System.out.println("Login success");
             }
             else if (arr[0].equals("logout")) {
@@ -616,29 +665,62 @@ public class Test {
                     continue;
                 }
                 is_login = false;
+                cur_user_num = null;
                 System.out.println("Logout success");
             }
             else if (arr[0].equals("buyTicket")) {
-                if (arr.length != 6) {
-                    System.out.println("Arguments illegal");
-                    continue;
-                }
-                if (!is_login) {
-                    System.out.println("Please login first");
-                    continue;
-                }
-                if (trainMap.get(arr[1]) == null) {
-                    System.out.println("Train does not exist");
-                    continue;
-                }
-                Line line = lineMap.get(trainMap.get(arr[1]).line_id);
-                if (line.stations.get(arr[2]) == null ||
-                    line.stations.get(arr[3]) == null) {
-                    System.out.println("Station does not exist");
-                    continue;
+                try {
+                    if (arr.length != 6) {
+                        throw new RuntimeException("Arguments illegal");
+                    }
+                    if (!is_login) {
+                        throw new RuntimeException("Please login first");
+                    }
+                    if (trainMap.get(arr[1]) == null) {
+                        throw new RuntimeException("Train does not exist");
+                    }
+                    Train train = trainMap.get(arr[1]);
+                    Line line = lineMap.get(train.line_id);
+                    if (line.stations.get(arr[2]) == null ||
+                            line.stations.get(arr[3]) == null) {
+                        throw new RuntimeException("Station does not exist");
+                    }
+                    if (train.ticketMap.get(arr[4]) == null) {
+                        throw new RuntimeException("Seat does not match");
+                    }
+                    if (!judgeInt(arr[5]) || Integer.parseInt(arr[5]) <= 0) {
+                        throw new RuntimeException("Ticket number illegal");
+                    }
+                    Train.Ticket ticket = train.ticketMap.get(arr[4]);
+                    int buy_count = Integer.parseInt(arr[5]);
+                    if (buy_count > ticket.count) {
+                        throw new RuntimeException("Ticket does not enough");
+                    }
+                    ticket.count -= buy_count;
+                    LinkedList<Order> orders = userMap.get(cur_user_num).orders;
+                    int distance = Math.abs(line.stations.get(arr[2]).distance - line.stations.get(arr[3]).distance);
+                    double total_price = distance * ticket.price * buy_count;
+                    orders.addFirst(new Order(arr[1], arr[2], arr[3], arr[4], buy_count, total_price));
+                    System.out.println("Thanks for your order");
+
+                }catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
                 }
             }
-
+            else if (arr[0].equals("listOrder")) {
+                try {
+                    if (arr.length != 1) {
+                        throw new RuntimeException("Arguments illegal");
+                    }
+                    if (!is_login) {
+                        throw new RuntimeException("Please login first");
+                    }
+                    LinkedList<Order> orders = userMap.get(cur_user_num).orders;
+                    orders.forEach(System.out::println);
+                }catch (RuntimeException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
             else System.out.println("Command does not exist");
         }
     }
